@@ -16,7 +16,7 @@
      var $loginPage = $('.login.page');
 
      async function init() {
-         if (initURL === undefined || initURL.length < 5) {
+         if (initURL === undefined || initURL.length < 5 || initURL.startsWith("https://") === false) {
              initURL = "https://teachablemachine.withgoogle.com/models/8TTYQRHkI/";
          }
          const modelURL = initURL + "model.json";
