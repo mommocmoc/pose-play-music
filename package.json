@@ -1,0 +1,32 @@
+{
+  "name": "pose-play-music",
+  "version": "1.0.0",
+  "description": "Pose,Play,Music for Dr.Future Studio Program Operated by Artcenter Nabi in Korea",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mommocmoc/pose-play-music.git"
+  },
+  "keywords": [
+    "nodejs",
+    "feathersjs",
+    "js",
+    "poseclassification",
+    "tensorflowjs",
+    "ai"
+  ],
+  "author": "JaeHwan So",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mommocmoc/pose-play-music/issues"
+  },
+  "homepage": "https://github.com/mommocmoc/pose-play-music#readme",
+  "dependencies": {
+    "@feathersjs/express": "^4.5.8",
+    "@feathersjs/feathers": "^4.5.8",
+    "@feathersjs/socketio": "^4.5.8"
+  }
+}

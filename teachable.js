@@ -17,6 +17,7 @@
 
      async function init() {
          if (initURL === undefined || initURL.length < 5 || initURL.startsWith("https://") === false) {
+             // 다른 모델 ; https://teachablemachine.withgoogle.com/models/jXOwcWavo/    
              initURL = "https://teachablemachine.withgoogle.com/models/8TTYQRHkI/";
          }
          const modelURL = initURL + "model.json";
@@ -45,6 +46,12 @@
          welcome.innerHTML = `어서오세요, ${username}! 포즈로 음악을 연주해볼까요?🎹`
          const soundControl = document.getElementById("sound")
 
+         //접속자 데이터 생성
+         username = username + Date.now();
+         sendData(username, "접속 확인", 0);
+         gotList();
+         updateList();
+
          //Osc Type Selector
          const oscTypes = ["Sine", "Sawtooth", "Square", "Triangle", "Chords", "Piano", "Drum"]
          const oscLabel = document.createElement("label")
@@ -58,6 +65,7 @@
              option.innerHTML = element;
              oscTypeSelector.appendChild(option)
          });
+
          soundControl.appendChild(oscLabel);
          soundControl.appendChild(oscTypeSelector);
          oscTypeSelector.onchange = function () {
@@ -114,6 +122,7 @@
          for (let i = 0; i < maxPredictions; i++) { // and class labels
              labelContainer.appendChild(document.createElement("div"));
          }
+
          //Audio Part using Tone.js
          casioOn = false;
          pianoOn = false;
@@ -167,24 +176,24 @@
              baseUrl: "https://tonejs.github.io/audio/salamander/"
          }).toDestination();
          drum = new Tone.Players({
-            //  urls:{
-            //      0: "kick.mp3",
-            //      1 : "snare.mp3",
-            //      2 : "hihat.mp3",
-            //      3 : "tom1.mp3 ",
-            //      4 : "./crash-hr.wav"
-            //  },
-             urls:{
+             //  urls:{
+             //      0: "kick.mp3",
+             //      1 : "snare.mp3",
+             //      2 : "hihat.mp3",
+             //      3 : "tom1.mp3 ",
+             //      4 : "./crash-hr.wav"
+             //  },
+             urls: {
                  0: "https://tonejs.github.io/audio/drum-samples/acoustic-kit/kick.mp3",
                  1: "https://tonejs.github.io/audio/drum-samples/acoustic-kit/snare.mp3",
                  2: "https://tonejs.github.io/audio/drum-samples/acoustic-kit/hihat.mp3",
                  3: "https://tonejs.github.io/audio/drum-samples/acoustic-kit/tom1.mp3 ",
-                 4 : "./crash-hr.wav"
+                 4: "./crash-hr.wav"
              },
-             fadeOut : "8n",
-            //  baseUrl: "https://tonejs.github.io/audio/drum-samples/acoustic-kit/"
+             fadeOut: "8n",
+             //  baseUrl: "https://tonejs.github.io/audio/drum-samples/acoustic-kit/"
          }).toDestination();
-        //  drum.add(4, "localhost:3030/crash-hr.wav").toDestination();
+         //  drum.add(4, "localhost:3030/crash-hr.wav").toDestination();
          //  //audio Part Loading
          //  audioCtx = new AudioContext();
          //  oscillator = audioCtx.createOscillator();
@@ -220,18 +229,18 @@
          const prediction = await model.predict(posenetOutput);
 
          for (let i = 0; i < maxPredictions; i++) {
-             predictionVal[i] = prediction[i].probability.toFixed(2);
+             predictionVal[i] = prediction[i].probability;
              if (previousVal[i] === null) {
                  previousVal[i] = 0.01;
              }
              const classPrediction =
-                 prediction[i].className + ": " + predictionVal[i];
+                 prediction[i].className + ": " + predictionVal[i].toFixed(2);
              labelContainer.childNodes[i].innerHTML = classPrediction;
              //casio Sampler play mode
              if (casioOn === true) {
-                 if (parseFloat(predictionVal[i]) >= 0.90) {
+                 if (predictionVal[i] >= 0.90) {
                      let baseFreq = maxFreq[i] / 8;
-                     if (parseFloat(predictionVal[i]) - previousVal[i] > 0.9) {
+                     if (predictionVal[i] - previousVal[i] > 0.9) {
                          sampler.triggerAttackRelease([baseFreq, baseFreq * 1.25, baseFreq * 1.5, baseFreq * 1.8], 1)
                          previousVal[i] = predictionVal[i];
                      }
@@ -240,9 +249,9 @@
                  }
              } else if (pianoOn === true) {
                  //piano mode
-                 if (parseFloat(predictionVal[i]) >= 0.90) {
+                 if (predictionVal[i] >= 0.90) {
                      let baseFreq = maxFreq[i] / 4;
-                     if (parseFloat(predictionVal[i]) - previousVal[i] > 0.9) {
+                     if (predictionVal[i] - previousVal[i] > 0.9) {
                          piano.triggerAttackRelease(baseFreq, 1)
                          previousVal[i] = predictionVal[i];
                      }
@@ -251,9 +260,9 @@
                  }
              } else if (drumOn === true) {
                  //drum mode
-                 if (parseFloat(predictionVal[i]) >= 0.90) {
-                     if (parseFloat(predictionVal[i]) - previousVal[i] > 0.9) {
-                         i = i%5;
+                 if (predictionVal[i] >= 0.90) {
+                     if (predictionVal[i] - previousVal[i] > 0.9) {
+                         i = i % 5;
                          drum.player(i).start();
                          previousVal[i] = predictionVal[i];
                      }
@@ -280,7 +289,9 @@
              }
 
          }
-         // finally draw the poses
+         // finally draw the poses & update server data
+         highestIndex = indexOfMax(predictionVal)
+         updateData(username, predictionVal, highestIndex)
          drawPose(pose);
      }
 
@@ -294,4 +305,21 @@
                  tmPose.drawSkeleton(pose.keypoints, minPartConfidence, ctx);
              }
          }
+     }
+
+     function indexOfMax(arr) {
+         if (arr.length === 0) {
+             return -1;
+         }
+
+         var max = arr[0];
+         var maxIndex = 0;
+
+         for (var i = 1; i < arr.length; i++) {
+             if (arr[i] > max) {
+                 maxIndex = i;
+                 max = arr[i];
+             }
+         }
+         return maxIndex;
      }
