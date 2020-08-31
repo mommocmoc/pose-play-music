@@ -1,5 +1,5 @@
 // 서버로 데이터 보내기 설정
-const socket = io('http://localhost:3030');
+const socket = io('https://pose-play-music.herokuapp.com');
 const app = feathers();
 app.configure(feathers.socketio(socket));
 

@@ -85,7 +85,7 @@ app.on('connection', connection =>{
 app.publish(data => app.channel('everybody'));
 
 // Start the server
-app.listen(3030).on('listening', () =>
+app.listen(80).on('listening', () =>
     console.log('Feathers server listening on localhost:3030')
 );
 
