@@ -56,6 +56,7 @@ class PoseDataService {
 // --------------Server------------------//
 
 const app = express(feathers());
+const PORT = process.env.PORT || 3030
 
 // Parse HTTP JSON bodies
 app.use(express.json());
@@ -85,8 +86,8 @@ app.on('connection', connection =>{
 app.publish(data => app.channel('everybody'));
 
 // Start the server
-app.listen(80).on('listening', () =>
-    console.log('Feathers server listening on localhost:3030')
+app.listen(PORT).on('listening', () =>
+    console.log(`Feathers server listening on ${PORT}`)
 );
 
 // For good measure let's create a message
