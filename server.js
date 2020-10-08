@@ -1,6 +1,8 @@
 const feathers = require('@feathersjs/feathers');
 const express = require('@feathersjs/express');
 const socketio = require('@feathersjs/socketio');
+const http = require('http');
+const enforce = require('express-sslify');
 // const Tone = require("tone/build/esm/core/Tone");
 
 // -------------Services-------------------//
@@ -57,7 +59,8 @@ class PoseDataService {
 
 const app = express(feathers());
 const PORT = process.env.PORT || 3030
-
+// directing to https
+app.use(enforce.HTTPS({ trustProtoHeader: true }));
 // Parse HTTP JSON bodies
 app.use(express.json());
 // Parse URL-encoded params
